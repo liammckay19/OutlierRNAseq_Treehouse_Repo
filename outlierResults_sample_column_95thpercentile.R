@@ -2,7 +2,7 @@ options(stringsAsFactors=FALSE) # for compatibile code between us
 
 library(tidyverse)
 
-setwd("~/Documents/UCSC/Junior/Treehouse/Prelim_Threshold_Analysis_Repo/comp4.3_tert8.ckcc.outlier_results")
+setwd("~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/comp4.3_tert8.ckcc.outlier_results")
 
 up_outlier_files=list.files(, "outlier_results_")
 
