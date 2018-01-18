@@ -25,9 +25,9 @@ quantile(outlierResults$sample, c(0.95))
 
 percentileOfEachSampleDf <- outlierResults %>%
   group_by(sampleID) %>%
-  summarise(p95 = quantile(sample, c(0.95)))
+  summarise(p95 = quantile(sample, c(0.95))) %>%
+  arrange(desc(p95))
 
-arrange(percentileOfEachSampleDf, p95) 
 
 # taking the histogram of a bad sample and comparing it to a good sample
 # TH01_0069_S01
@@ -43,11 +43,38 @@ percentileOfEachSampleDf_bad_sample <- bad_sample %>%
   group_by(sample) %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
-p1 <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
+p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
   geom_histogram(binwidth = 0.05) +
   xlim(c(2,6))
-p2 <- ggplot(percentileOfEachSampleDf, aes(p95)) + 
+p_overall <- ggplot(percentileOfEachSampleDf, aes(p95)) + 
   geom_histogram(binwidth = 0.05)
 
-ggarrange(p1, p2, 
+ggarrange(p_bad, p_overall, 
           labels = c("Bad", "All_Samples"))
+
+
+#------  comparing a good sample and a bad sample
+
+summary(percentileOfEachSampleDf)
+# TH01_0062_S01 is closest to the mean (5.159468 ~ Mean   :5.154)
+
+sample_file_good=list.files(, "outlier_results_TH01_0062_S01")
+
+good_sample<-lapply(sample_file_good, function(x) {
+  read_tsv(x, col_types=cols()) %>%
+    add_column(sampleID=gsub("outlier_results_TH01_0062_S01", "", x))
+}) 	%>%
+  bind_rows()
+
+percentileOfEachSampleDf_good_sample <- good_sample %>%
+  group_by(sample) %>%
+  summarise(p95 = quantile(sample, c(0.95)))
+
+p_good <- ggplot(percentileOfEachSampleDf_good_sample, aes(p95)) + 
+  geom_histogram(binwidth = 0.05)
+p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
+  geom_histogram(binwidth = 0.05) 
+
+ggarrange(p_bad, p_good, 
+          labels = c("Bad", "Good"))
+
