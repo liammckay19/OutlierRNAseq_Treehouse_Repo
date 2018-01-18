@@ -38,13 +38,16 @@ bad_sample<-lapply(up_outlier_file_bad, function(x) {
     add_column(sampleID=gsub("outlier_results_TH01_0069_S01", "", x))
 }) 	%>%
   bind_rows()
+
 percentileOfEachSampleDf_bad_sample <- bad_sample %>%
   group_by(sample) %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
-p1 <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + geom_histogram()
-p2 <- ggplot(percentileOfEachSampleDf, aes(p95)) + geom_histogram()
+p1 <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
+  geom_histogram(binwidth = 0.05) +
+  xlim(c(2,6))
+p2 <- ggplot(percentileOfEachSampleDf, aes(p95)) + 
+  geom_histogram(binwidth = 0.05)
 
 ggarrange(p1, p2, 
-          labels = c("A", "B"),
-          ncol = 2)
+          labels = c("Bad", "All_Samples"))
