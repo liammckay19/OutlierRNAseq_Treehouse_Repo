@@ -53,7 +53,7 @@ ggarrange(p_bad, p_overall,
           labels = c("Bad", "All_Samples"))
 
 
-#------  comparing a good sample and a bad sample
+#---comp 1--  comparing a good sample and a bad sample
 
 summary(percentileOfEachSampleDf)
 # TH01_0062_S01 is closest to the mean (5.159468 ~ Mean   :5.154)
@@ -71,10 +71,39 @@ percentileOfEachSampleDf_good_sample <- good_sample %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
 p_good <- ggplot(percentileOfEachSampleDf_good_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.05)
+  geom_histogram(binwidth = 0.1) 
 p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.05) 
+  geom_histogram(binwidth = 0.1) 
 
 ggarrange(p_bad, p_good, 
           labels = c("Bad", "Good"))
+
+
+#---comp 2--  comparing a Best sample and a bad sample
+
+summary(percentileOfEachSampleDf)
+# TH03_0008_S01 is highest 95th percentile (5.971084)
+
+sample_file_best=list.files(, "outlier_results_TH03_0008_S01")
+
+best_sample<-lapply(sample_file_best, function(x) {
+  read_tsv(x, col_types=cols()) %>%
+    add_column(sampleID=gsub("outlier_results_TH03_0008_S01", "", x))
+}) 	%>%
+  bind_rows()
+
+percentileOfEachSampleDf_best_sample <- best_sample %>%
+  group_by(sample) %>%
+  summarise(p95 = quantile(sample, c(0.95)))
+
+p_best <- ggplot(percentileOfEachSampleDf_best_sample, aes(p95)) + 
+  geom_histogram(binwidth = 0.1) +
+  xlim(c(0,18))
+p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
+  geom_histogram(binwidth = 0.1) +
+  xlim(c(0,18))
+
+ggarrange(p_bad, p_best, 
+          labels = c("Bad", "Best"))
+
 
