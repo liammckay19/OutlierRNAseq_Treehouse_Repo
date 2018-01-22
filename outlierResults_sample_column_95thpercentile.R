@@ -37,23 +37,23 @@ percentileOfEachSampleDf <- outlierResults %>%
   summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))) %>%
   arrange(desc(p95))
 
-# very useful tutorial for plotting two histograms
+## very useful tutorial for plotting two histograms together
 # https://stackoverflow.com/questions/3541713/how-to-plot-two-histograms-together-in-r/3557042
-p95df <- data.frame(percentileOfEachSampleDf$p95)
-p95df <- rename(p95df, 'value' = percentileOfEachSampleDf.p95)
+# p95df <- data.frame(percentileOfEachSampleDf$p95)
+# p95df <- rename(p95df, 'value' = percentileOfEachSampleDf.p95)
+# 
+# p75df <- data.frame(percentileOfEachSampleDf$p75) 
+# p75df <- rename(p75df, 'value' = percentileOfEachSampleDf.p75)
+# 
+# p95df$percentile <- '95th'
+# p75df$percentile <- '75th'
+# 
+# bothPercentiles <- rbind(p95df, p75df)
 
-p75df <- data.frame(percentileOfEachSampleDf$p75) 
-p75df <- rename(p75df, 'value' = percentileOfEachSampleDf.p75)
 
-p95df$percentile <- '95th'
-p75df$percentile <- '75th'
-
-bothPercentiles <- rbind(p95df, p75df)
-
-
-# created my own function to concatenate two columns and compare them in ggplot with a 
+## created my own function to concatenate two columns and compare them in ggplot with a 
 # comparison needed 
-# (basically does what is written up)
+# (basically generalizes what is written from the tutorial)
 createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
 
   col1df <- data.frame(col1)
@@ -82,8 +82,15 @@ ggplot(bothPercentilesTwo, aes(values, fill = percentile)) +
   geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
 
+outlierResults_sample <- outlierResults %>%
+  select(sample)
 
-
+# number of samples that are 0 and not zero
+count(outlierResults_sample, sample == 0)
+#   `sample == 0`       n
+#   <lgl>           <int>
+#   1 F             4124131
+#   2 T             4428695
 
 ### COMPARISONS OF BAD GOOD AND TOTAL SAMPLES
 
@@ -175,4 +182,5 @@ p2 <- ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) +
   ggtitle("95th Percentiles of All Samples and the worst sample") +
   geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
+# plot both graphs side by side
 ggarrange(p1,p2)
