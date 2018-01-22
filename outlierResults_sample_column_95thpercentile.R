@@ -1,3 +1,10 @@
+# OutlierResults_sample_column_95thpercentile.r
+
+# - finds 95th percentile overall of comp4.3_tert8.ckcc.outlier_results
+# - compares the lowest 95th percentile sample individually
+#   to overall, middle, and best 95th percentile score
+
+
 options(stringsAsFactors=FALSE) # for compatibile code between us
 
 library(tidyverse)

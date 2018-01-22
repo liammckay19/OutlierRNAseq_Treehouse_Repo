@@ -33,9 +33,12 @@ df_small <- outlierResultsSmall %>%
 qplot(sample, pc_percentile, data = df_small, xlab="log2(TPM+1)")
 
 # reverse log2(TPM-1) to get just TPM:
-log2Tpm <- df_small$sample + 1
-Tpm <- 2^log2Tpm
-Tpm
+# log2Tpm <- df_small$sample + 1
+# Tpm <- 2^log2Tpm # this is in the wrong order 
+# Tpm
+
+TpmMinusOne <- 2^df_small$sample
+Tpm <- TpmMinusOne+1
 
 # attempting to make histogram of data without using hist() so I can plot it on a log10 scale
 
