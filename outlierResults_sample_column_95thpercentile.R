@@ -16,6 +16,8 @@ setwd("~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/comp4.3_te
 
 up_outlier_files=list.files(, "outlier_results_")
 
+
+
 outlierResults<-lapply(up_outlier_files, function(x) {
 	read_tsv(x, col_types=cols()) %>%
 	add_column(sampleID=gsub("outlier_results_", "", x))
@@ -35,8 +37,53 @@ percentileOfEachSampleDf <- outlierResults %>%
   summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))) %>%
   arrange(desc(p95))
 
+# very useful tutorial for plotting two histograms
+# https://stackoverflow.com/questions/3541713/how-to-plot-two-histograms-together-in-r/3557042
+p95df <- data.frame(percentileOfEachSampleDf$p95)
+p95df <- rename(p95df, 'value' = percentileOfEachSampleDf.p95)
 
-# taking the histogram of a bad sample and comparing it to a good sample
+p75df <- data.frame(percentileOfEachSampleDf$p75) 
+p75df <- rename(p75df, 'value' = percentileOfEachSampleDf.p75)
+
+p95df$percentile <- '95th'
+p75df$percentile <- '75th'
+
+bothPercentiles <- rbind(p95df, p75df)
+
+
+# created my own function to concatenate two columns and compare them in ggplot with a 
+# comparison needed 
+# (basically does what is written up)
+createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
+
+  col1df <- data.frame(col1)
+  col1df <- rename(col1df, 'value' = col1)
+
+
+  col2df <- data.frame(col2)
+  col2df <- rename(col2df, 'value' = col2)
+
+  col1df$nameOfComparison <- name1
+  col2df$nameOfComparison <- name2
+
+  bothBoundedData <- rbind(col1df, col2df)
+  colnames (bothBoundedData) <- c("values", nameOfComparison)
+  return(bothBoundedData)
+}
+
+bothPercentilesTwo <- createBoundedData(percentileOfEachSampleDf$p95, 
+                                        percentileOfEachSampleDf$p75, 
+                                        "percentile", '95th', '75th')
+
+# ---> PLOT 95th 75th percentile histograms of total samples
+ggplot(bothPercentilesTwo, aes(values, fill = percentile)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th and 75th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+
+
+
+# taking the histogram of a bad sample and comparing it to all samples
 # TH01_0069_S01
 up_outlier_file_bad=list.files(, "outlier_results_TH01_0069_S01")
 
@@ -50,14 +97,14 @@ percentileOfEachSampleDf_bad_sample <- bad_sample %>%
   group_by(sample) %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
-p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.05) +
-  xlim(c(2,6))
-p_overall <- ggplot(percentileOfEachSampleDf, aes(p95)) + 
-  geom_histogram(binwidth = 0.05)
+bothPercentilesOverall_Bad <- createBoundedData(percentileOfEachSampleDf$p95,
+                                                percentileOfEachSampleDf_bad_sample$p95,
+                                                "sampleFile", 'all samples','Low outlier')
 
-ggarrange(p_bad, p_overall, 
-          labels = c("Bad", "All_Samples"))
+ggplot(bothPercentilesOverall_Bad, aes(values, fill = sampleFile)) + 
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th Percentiles of All Samples and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
 
 #---comp 1--  comparing a good sample and a bad sample
