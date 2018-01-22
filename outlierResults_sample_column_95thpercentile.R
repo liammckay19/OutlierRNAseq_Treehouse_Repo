@@ -83,6 +83,11 @@ ggplot(bothPercentilesTwo, aes(values, fill = percentile)) +
 
 
 
+
+
+### COMPARISONS OF BAD GOOD AND TOTAL SAMPLES
+
+
 # taking the histogram of a bad sample and comparing it to all samples
 # TH01_0069_S01
 up_outlier_file_bad=list.files(, "outlier_results_TH01_0069_S01")
@@ -124,13 +129,16 @@ percentileOfEachSampleDf_good_sample <- good_sample %>%
   group_by(sample) %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
-p_good <- ggplot(percentileOfEachSampleDf_good_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.1) 
-p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.1) 
 
-ggarrange(p_bad, p_good, 
-          labels = c("Bad", "Good"))
+
+bothPercentilesGood_Bad <- createBoundedData(percentileOfEachSampleDf_good_sample$p95,
+                                                percentileOfEachSampleDf_bad_sample$p95,
+                                                "sampleFile", 'Mean','Low outlier')
+
+ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) + 
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th Percentiles of All Samples and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
 
 #---comp 2--  comparing a Best sample and a bad sample
@@ -150,14 +158,21 @@ percentileOfEachSampleDf_best_sample <- best_sample %>%
   group_by(sample) %>%
   summarise(p95 = quantile(sample, c(0.95)))
 
-p_best <- ggplot(percentileOfEachSampleDf_best_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.1) +
-  xlim(c(0,18))
-p_bad <- ggplot(percentileOfEachSampleDf_bad_sample, aes(p95)) + 
-  geom_histogram(binwidth = 0.1) +
-  xlim(c(0,18))
-
-ggarrange(p_bad, p_best, 
-          labels = c("Bad", "Best"))
 
 
+bothPercentilesBest_Bad <- createBoundedData(percentileOfEachSampleDf_best_sample$p95,
+                                             percentileOfEachSampleDf_bad_sample$p95,
+                                             "sampleFile", 'Best Outlier','Low Outlier')
+
+p1 <- ggplot(bothPercentilesBest_Bad, aes(values, fill = sampleFile)) + 
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th Percentiles of best Sample and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+
+
+p2 <- ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) + 
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th Percentiles of All Samples and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+
+ggarrange(p1,p2)
