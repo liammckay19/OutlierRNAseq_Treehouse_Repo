@@ -70,7 +70,7 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
 }
 
 
-
+### Week 2
 # 50th, 60th, 75th, 80th, 85th compared to 95th percentile
 {
   
@@ -222,7 +222,7 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   grob <- arrangeGrob(p1,p2)
   grid.arrange(p1,p2) 
 }
-p2
+
 
 outlierResults_sample <- outlierResults %>%
   select(sample)
