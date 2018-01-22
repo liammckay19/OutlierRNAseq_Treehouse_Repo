@@ -32,7 +32,7 @@ quantile(outlierResults$sample, c(0.95))
 
 percentileOfEachSampleDf <- outlierResults %>%
   group_by(sampleID) %>%
-  summarise(p95 = quantile(sample, c(0.95))) %>%
+  summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))) %>%
   arrange(desc(p95))
 
 

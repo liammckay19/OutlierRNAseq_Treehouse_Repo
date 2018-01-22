@@ -41,8 +41,31 @@ ggplot(log2(no_zero_TPMDf-1), aes(TPM)) + # no zeros
   geom_histogram() + 
   geom_vline(xintercept = 0) # plot of bell curve centered at 3 
 
-ggplot(log10(rawTPMDf_nozeros), aes(sample)) + 
-  geom_point() +
-  ylim(c(0,10000))
 
+percentileOfEachTPMDf <- rawTPMDf %>%
+  group_by(sampleID) %>%
+  summarise(p95 = quantile(TPM, c(0.95)), p75 = quantile(TPM, c(0.75))) %>%
+  arrange(desc(p95))
+
+# binwidth of 1 for 95th percentile of TPM across all genes
+ggplot(percentileOfEachTPMDf, aes(p95)) + geom_histogram(binwidth = 1)
+
+# binwidth of 0.1 for 75th percentile of TPM across all genes
+ggplot(percentileOfEachTPMDf, aes(p75)) + geom_histogram(binwidth = 0.1)
+
+
+
+sum(TPMDf)
+# = 1.46e+08 total TPM
+
+countOfTPMDf <- count(TPMDf, vars = TPM)
+
+count(TPMDf, TPM > 0)
+# `TPM > 0`       n
+# <lgl>       <int>
+#   1 F         4690960
+#   2 T         4141748
+
+head(countOfTPMDf)
+# confirms above works  (the vars = 0; n = 4690960)
 
