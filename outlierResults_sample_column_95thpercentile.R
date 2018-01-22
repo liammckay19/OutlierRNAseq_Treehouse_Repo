@@ -206,22 +206,23 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
     geom_density(alpha = 0, position = 'identity', aes(y=..density..)) +
     xlab("sample") +
     scale_fill_manual(breaks = bothPercentilesBest_Bad$sampleFile, 
-                      values = c("#FF2D00","#03BDC0"))
+                      values = c("#FF2D00","#03BDC0")) 
   
   
   p2 <- ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) + 
     geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..), binwidth = 0.1) + 
     ggtitle("Expression  of mean Sample and the worst sample") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..))+
-    xlab("sample") +
-    scale_fill_manual(breaks = bothPercentilesBest_Bad$sampleFile, 
-                      values = c("#03BDC0","#FF2D00"))
+    xlab("sample") + 
+    scale_fill_manual(breaks = bothPercentilesGood_Bad$sampleFile, values = c("#03BDC0","#FF2D00")) 
+  
+  
   
   # plot both graphs side by side
-  
-  grid.arrange(arrangeGrob(p1,p2)) 
+  grob <- arrangeGrob(p1,p2)
+  grid.arrange(p1,p2) 
 }
-
+p2
 
 outlierResults_sample <- outlierResults %>%
   select(sample)
