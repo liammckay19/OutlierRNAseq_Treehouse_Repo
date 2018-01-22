@@ -3,7 +3,7 @@
 options(stringsAsFactors=FALSE) # for compatibile code between us
 
 library(tidyverse)
-library(ggpubr) # easy for putting graphs onto the same page (just use ggarrange(graph1, graph2, ncol = # of display
+library(gridExtra) # easy for putting graphs onto the same page (just use ggarrange(graph1, graph2, ncol = # of display
 # columns, nrow = #row))
 
 
@@ -27,16 +27,19 @@ no_zero_TPMDf <- TPMDf %>%
 summary(TPMDf)
   
 
-Log2TPMDf <- log2(TPMDf-1)
+Log2TPMDf <- log2(TPMDf+1)
 countLog2TPMDf <- count(Log2TPMDf, vars = TPM)
 
-ggplot(countLog2TPMDf, aes(vars, log2(n))) + geom_point() # weird binning was observed
+ggplot(countLog2TPMDf, aes(vars, n)) + geom_point() # weird binning was observed
 # it does spread in a different way
 
+TPM053_sample <- subset(TPMsampleIDDf, sampleID == "TH01_0053_S01_rsem_genes.results")
+ggplot(TPM053_sample, aes(log2(TPM+1))) +geom_histogram()
 
 
-ggplot(log2(TPMDf-1), aes(TPM)) + # with zeros
+ggplot(TPMDf, aes(TPM)) + # with zeros
   geom_histogram() # plot of bell curve centered at 3 
+
 ggplot(log2(no_zero_TPMDf-1), aes(TPM)) + # no zeros 
   geom_histogram() + 
   geom_vline(xintercept = 0) # plot of bell curve centered at 3 
@@ -56,6 +59,10 @@ ggplot(percentileOfEachTPMDf, aes(p75)) + geom_histogram(binwidth = 0.1)
 
 
 sum(TPMDf)
+
+sum_TPMDf <- rawTPMDf %>%
+  group_by(sampleID) %>%
+  summarise(sum = sum(TPM))
 # = 1.46e+08 total TPM
 
 countOfTPMDf <- count(TPMDf, vars = TPM)
@@ -66,6 +73,13 @@ count(TPMDf, TPM > 0)
 #   1 F         4690960
 #   2 T         4141748
 
+
 head(countOfTPMDf)
 # confirms above works  (the vars = 0; n = 4690960)
 
+
+# back up reference within 1 of one million for each sample
+min(sum_TPMDf$sum)
+# [1] 999997.7
+max(sum_TPMDf$sum)
+# [1] 1000001

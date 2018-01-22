@@ -8,7 +8,7 @@
 options(stringsAsFactors=FALSE) # for compatibile code between us
 
 library(tidyverse)
-library(ggpubr) # easy for putting graphs onto the same page (just use ggarrange(graph1, graph2, ncol = # of display
+library(gridExtra) # easy for putting graphs onto the same page (just use ggarrange(graph1, graph2, ncol = # of display
                 # columns, nrow = #row))
 
 
@@ -34,8 +34,12 @@ quantile(outlierResults$sample, c(0.95))
 
 percentileOfEachSampleDf <- outlierResults %>%
   group_by(sampleID) %>%
-  summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))) %>%
+  summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))
+            ,p80 = quantile(sample, c(0.80)),p60 = quantile(sample, c(0.60)),
+            p50 = quantile(sample, c(0.50)),p85 = quantile(sample, c(0.85)) ) %>%
   arrange(desc(p95))
+
+
 
 ## very useful tutorial for plotting two histograms together
 # https://stackoverflow.com/questions/3541713/how-to-plot-two-histograms-together-in-r/3557042
@@ -71,16 +75,55 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   return(bothBoundedData)
 }
 
-bothPercentilesTwo <- createBoundedData(percentileOfEachSampleDf$p95, 
+bothPercentilesOne <- createBoundedData(percentileOfEachSampleDf$p95, 
                                         percentileOfEachSampleDf$p75, 
                                         "percentile", '95th', '75th')
 
+bothPercentilesTwo <- createBoundedData(percentileOfEachSampleDf$p95, 
+                                        percentileOfEachSampleDf$p80, 
+                                        "percentile", '95th', '80th')
+bothPercentilesThree <- createBoundedData(percentileOfEachSampleDf$p95, 
+                                        percentileOfEachSampleDf$p50, 
+                                        "percentile", '95th', '50th')
+
+bothPercentilesFour <- createBoundedData(percentileOfEachSampleDf$p95, 
+                                          percentileOfEachSampleDf$p60, 
+                                          "percentile", '95th', '60th')
+bothPercentilesFive <- createBoundedData(percentileOfEachSampleDf$p95, 
+                                         percentileOfEachSampleDf$p85, 
+                                         "percentile", '95th', '85th')
+
+
+
+
+paFifty<- ggplot(bothPercentilesThree, aes(values, fill = percentile)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th and 50th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+pbSixty<- ggplot(bothPercentilesFour, aes(values, fill = percentile)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th and 60th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 # ---> PLOT 95th 75th percentile histograms of total samples
-ggplot(bothPercentilesTwo, aes(values, fill = percentile)) + 
+pcSeventyFive<- ggplot(bothPercentilesOne, aes(values, fill = percentile)) + 
   geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
   ggtitle("95th and 75th Percentiles of All Samples") +
   geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+pdEighty<- ggplot(bothPercentilesTwo, aes(values, fill = percentile)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th and 80th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
+peEightyFive <- ggplot(bothPercentilesFive, aes(values, fill = percentile)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th and 85th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+
+
+grob <- arrangeGrob(grobs = list(paFifty,pbSixty,pcSeventyFive,pdEighty,peEightyFive), nrow=5, ncol=1 )
+grid.arrange(grob)
+
+pa
 
 outlierResults_sample <- outlierResults %>%
   select(sample)
@@ -94,6 +137,7 @@ count(outlierResults_sample, sample == 0)
 
 ### COMPARISONS OF BAD GOOD AND TOTAL SAMPLES
 
+#find out number of genes with zero 
 
 # taking the histogram of a bad sample and comparing it to all samples
 # TH01_0069_S01
@@ -144,7 +188,7 @@ bothPercentilesGood_Bad <- createBoundedData(percentileOfEachSampleDf_good_sampl
 
 ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) + 
   geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
-  ggtitle("95th Percentiles of All Samples and the worst sample") +
+  ggtitle("Expression of mean sample and the worst sample") +
   geom_density(alpha = 0, position = 'identity', aes(y=..density..))
 
 
@@ -172,15 +216,23 @@ bothPercentilesBest_Bad <- createBoundedData(percentileOfEachSampleDf_best_sampl
                                              "sampleFile", 'Best Outlier','Low Outlier')
 
 p1 <- ggplot(bothPercentilesBest_Bad, aes(values, fill = sampleFile)) + 
-  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
-  ggtitle("95th Percentiles of best Sample and the worst sample") +
-  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..), binwidth = 0.1) + 
+  ggtitle("Expression of best Sample and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..)) +
+  xlab("sample") +
+  scale_fill_manual(breaks = bothPercentilesBest_Bad$sampleFile, 
+                    values = c("#FF2D00","#03BDC0"))
 
 
 p2 <- ggplot(bothPercentilesGood_Bad, aes(values, fill = sampleFile)) + 
-  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..)) + 
-  ggtitle("95th Percentiles of All Samples and the worst sample") +
-  geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+  geom_histogram(alpha = 0.5,  position = 'identity', aes(y=..density..), binwidth = 0.1) + 
+  ggtitle("Expression  of mean Sample and the worst sample") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..))+
+  xlab("sample") +
+  scale_fill_manual(breaks = bothPercentilesBest_Bad$sampleFile, 
+                    values = c("#03BDC0","#FF2D00"))
 
 # plot both graphs side by side
-ggarrange(p1,p2)
+
+grid.arrange(arrangeGrob(p1,p2)) 
+
