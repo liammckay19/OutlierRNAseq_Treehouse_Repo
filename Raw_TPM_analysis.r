@@ -77,6 +77,7 @@ count(TPMDf, TPM > 0)
 head(countOfTPMDf)
 # confirms above works  (the vars = 0; n = 4690960)
 
+sum_TPMDf
 
 # back up reference within 1 of one million for each sample
 min(sum_TPMDf$sum)

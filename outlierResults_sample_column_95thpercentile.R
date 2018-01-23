@@ -104,7 +104,11 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   pcSeventyFive<- ggplot(bothPercentilesOne, aes(values, fill = percentile)) + 
     geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 75th Percentiles of All Samples") +
-    geom_density(alpha = 0, position = 'identity', aes(y=..density..))
+    geom_density(alpha = 0, position = 'identity', aes(y=..density..)) +
+    xlab("sample")
+  
+  
+  
   pdEighty<- ggplot(bothPercentilesTwo, aes(values, fill = percentile)) + 
     geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 80th Percentiles of All Samples") +
