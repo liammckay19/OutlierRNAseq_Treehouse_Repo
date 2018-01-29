@@ -80,6 +80,8 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
 dfCombined95thZeroCount <- createBoundedData(eachSampleZeroCount$n, eachSample95thCount$nn, "count", 'zero', '95th')
 dfCombined95thZeroCount$sampleID <- c(eachSampleZeroCount$sampleID, eachSample95thCount$sampleID)
 
+
+
 ggplot(dfCombined95thZeroCount, aes(values, sampleID, color = count)) + 
   geom_point() + 
   ggtitle("95th and Zero Counts of Each Sample") 
