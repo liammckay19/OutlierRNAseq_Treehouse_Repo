@@ -52,6 +52,12 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
 bothPercentilesOne <- createBoundedData(percentileOfEachSampleDf$p95, 
                                         percentileOfEachSampleDf$p75, 
                                         "percentile", '95th', '75th')
+ggplot(percentileOfEachSampleDf, aes(p95)) + 
+  geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  ggtitle("95th Percentiles of All Samples") +
+  geom_density(alpha = 0, position = 'identity', aes(y=..density..)) +
+  xlab("sample")
+
 ggplot(bothPercentilesOne, aes(values, fill = percentile)) + 
   geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
   ggtitle("95th and 75th Percentiles of All Samples") +

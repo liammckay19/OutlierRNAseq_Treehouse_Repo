@@ -93,16 +93,16 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
                                            "percentile", '95th', '85th')
   
   paFifty<- ggplot(bothPercentilesThree, aes(values, fill = percentile)) + 
-    geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+    geom_histogram(binwidth = 0.1, alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 50th Percentiles of All Samples") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..))
   pbSixty<- ggplot(bothPercentilesFour, aes(values, fill = percentile)) + 
-    geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+    geom_histogram(binwidth = 0.1, alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 60th Percentiles of All Samples") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..))
   # ---> PLOT 95th 75th percentile histograms of total samples
   pcSeventyFive<- ggplot(bothPercentilesOne, aes(values, fill = percentile)) + 
-    geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+    geom_histogram(binwidth = 0.1, alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 75th Percentiles of All Samples") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..)) +
     xlab("sample")
@@ -110,19 +110,36 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   
   
   pdEighty<- ggplot(bothPercentilesTwo, aes(values, fill = percentile)) + 
-    geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+    geom_histogram(binwidth = 0.1, alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 80th Percentiles of All Samples") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..))
   
-  peEightyFive <- ggplot(bothPercentilesFive, aes(values, fill = percentile)) + 
-    geom_histogram(alpha = 0.5, position = 'identity', aes(y=..density..)) + 
+  peEightyFive <- ggplot(binwidth = 0.1, bothPercentilesFive, aes(values, fill = percentile)) + 
+    geom_histogram(binwidth = 0.1, alpha = 0.5, position = 'identity', aes(y=..density..)) + 
     ggtitle("95th and 85th Percentiles of All Samples") +
     geom_density(alpha = 0, position = 'identity', aes(y=..density..))
   
   
   grob <- arrangeGrob(grobs = list(paFifty,pbSixty,pcSeventyFive,pdEighty,peEightyFive), nrow=5, ncol=1 )
   grid.arrange(grob)
+  thisSample = "paFifty"
+  p <- paFifty
+  ggsave(paste0(thisSample, ".png"), plot = p, "png", "~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/WorstPercentilePlots/")
+  thisSample = "pbSixty"
+  p <- pbSixty
+  ggsave(paste0(thisSample, ".png"), plot = p, "png", "~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/WorstPercentilePlots/")
+  thisSample = "pcSeventyFive"
+  p <- pcSeventyFive
+  ggsave(paste0(thisSample, ".png"), plot = p, "png", "~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/WorstPercentilePlots/")
+  thisSample = "pdEighty"
+  p <- pdEighty
+  ggsave(paste0(thisSample, ".png"), plot = p, "png", "~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/WorstPercentilePlots/")
+  thisSample = "peEightyFive"
+  p <- peEightyFive
+  ggsave(paste0(thisSample, ".png"), plot = p, "png", "~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/WorstPercentilePlots/")
+  
 }
+
 
 ### COMPARISONS OF BAD GOOD AND TOTAL SAMPLES 95th percentile
 {
@@ -138,8 +155,7 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   }) 	%>%
     bind_rows()
   
-  percentileOfEachSampleDf_bad_sample <- bad_sample %>%
-    group_by(sample) %>%
+  percentileOfEachSampleDf_bad_sample <- bad_sample 
     summarise(p95 = quantile(sample, c(0.95)))
   
   bothPercentilesOverall_Bad <- createBoundedData(percentileOfEachSampleDf$p95,
@@ -166,7 +182,6 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
     bind_rows()
   
   percentileOfEachSampleDf_good_sample <- good_sample %>%
-    group_by(sample) %>%
     summarise(p95 = quantile(sample, c(0.95)))
   
   
@@ -195,7 +210,6 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
     bind_rows()
   
   percentileOfEachSampleDf_best_sample <- best_sample %>%
-    group_by(sample) %>%
     summarise(p95 = quantile(sample, c(0.95)))
   
   
@@ -225,6 +239,7 @@ createBoundedData <- function(col1, col2, nameOfComparison, name1, name2) {
   # plot both graphs side by side
   grob <- arrangeGrob(p1,p2)
   grid.arrange(p1,p2) 
+
 }
 
 

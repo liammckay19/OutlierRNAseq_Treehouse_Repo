@@ -12,6 +12,14 @@ library(gridExtra) # easy for putting graphs onto the same page (just use ggarra
 
 setwd("~/Documents/UCSC/Junior/Treehouse/OutlierRNAseq_Treehouse_Repo/comp4.3_tert8.ckcc.outlier_results")
 
+outlierResults<-lapply(up_outlier_files, function(x) {
+  read_tsv(x, col_types=cols()) %>%
+    add_column(sampleID=gsub("outlier_results_", "", x))
+}) 	%>%
+  bind_rows()
+
+outlierResults_sample <- outlierResults %>%
+  select(sample)
 
 # find the number of genes with zero counts
 # number of samples that are 0 and not zero
@@ -25,9 +33,7 @@ count(outlierResults_sample, sample == 0)
 eachSampleZeroCount <- outlierResults %>%
   group_by(sampleID) %>%
   count(sample) %>%
-  filter(sample == 0) %>%
-  gsub("TH0", "") %>%
-  gsub("S0", "")
+  filter(sample == 0) 
 
 
 # the numbers to the 95th pctl
