@@ -34,7 +34,11 @@ percentileOfEachSampleDf <- outlierResults %>%
   group_by(sampleID) %>%
   summarise(p95 = quantile(sample, c(0.95)),p75 = quantile(sample, c(0.75))
             ,p80 = quantile(sample, c(0.80)),p60 = quantile(sample, c(0.60)),
-            p50 = quantile(sample, c(0.50)),p85 = quantile(sample, c(0.85)) ) %>%
+            p50 = quantile(sample, c(0.50)),p85 = quantile(sample, c(0.85))
+            ,p86 = quantile(sample, c(0.86)),p90 = quantile(sample, c(0.90))
+            ,p87 = quantile(sample, c(0.87)),p91 = quantile(sample, c(0.91))
+            ,p88 = quantile(sample, c(0.88)),p92 = quantile(sample, c(0.92))
+            ,p89 = quantile(sample, c(0.89)),p93 = quantile(sample, c(0.93))) %>%
   arrange(desc(p95))
 
 ## created my own function to concatenate two columns and compare them in ggplot with a 
